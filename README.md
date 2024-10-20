@@ -1,5 +1,10 @@
 # gitbm
 A fast (probably), lightweight (I guess so) Git branch bookmarking tool written in Go, powered by SQLite.
+![image](https://github.com/user-attachments/assets/b14111e2-cb41-4a4b-91aa-8fafec07aa7a)
+
+https://github.com/user-attachments/assets/78a32e1d-2cc3-48c3-abf9-2cfa65474054
+
+
 
 ## Why `gitbm`?
 - You’re working on a huge feature split into multiple smaller tasks. Each task has its own branch, and you can’t remember all those branch names (Chained branches are the worst, I know)
