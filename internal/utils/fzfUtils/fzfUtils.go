@@ -18,7 +18,7 @@ func FuzzyFind[T any](items []T, displayFunc func(T) string, promptString string
 		func(i int) string {
 			return displayFunc(items[i])
 		},
-		fuzzyfinder.WithPromptString(promptString),
+		fuzzyfinder.WithPromptString(promptString+" : "),
 	)
 	if err != nil {
 		if err == fuzzyfinder.ErrAbort {

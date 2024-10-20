@@ -103,7 +103,7 @@ Note: An active bookmark group is required.`,
 					}
 					return b.Name
 				},
-				"Select a branch:",
+				"Select a branch",
 			)
 			if err != nil {
 				if err == fzfutils.ErrSelectionCancelled {
