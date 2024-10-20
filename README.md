@@ -2,6 +2,13 @@
 A fast *(probably)*, lightweight *(I guess so)* Git branch bookmarking tool written in Go, powered by SQLite and FZF.
 
 ![image](https://github.com/user-attachments/assets/294dcc4b-b6bc-42a7-904f-a041a0c17d31)
+<img width="1440" alt="Screenshot 2024-10-20 at 9 18 46 PM" src="https://github.com/user-attachments/assets/38dcbe2c-fb8b-43c6-8674-1be3a67495fe">
+
+<img width="1440" alt="Screenshot 2024-10-20 at 9 15 05 PM" src="https://github.com/user-attachments/assets/ce0b8c7e-ba14-4378-90bd-8ada2c8f2ba6">
+
+<img width="1440" alt="Screenshot 2024-10-20 at 9 18 57 PM" src="https://github.com/user-attachments/assets/a9fa14e5-be27-4fa8-aa2f-165d474efbbc">
+
+
 
 ## Why `gitbm`?
 When you’re working on a big feature or in a team environment, managing multiple branches can become quite a challenge. Here’s why gitbm helps (or at least tries to help):
@@ -23,7 +30,6 @@ When you’re working on a big feature or in a team environment, managing multip
     ```
 
 ## Usage
-https://github.com/user-attachments/assets/78a32e1d-2cc3-48c3-abf9-2cfa65474054
 
 For full command details, just ask for help:
 ```bash
