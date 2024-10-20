@@ -45,12 +45,12 @@ gitbm --help
     ```
 
 ## TODO
-- [ ] Add `recent` command with automatic branch tracking (because let’s face it, we all need this).
+- [ ] Add `recent` command with automatic branch tracking.
 - [ ] Shell completion (because typing is hard).
-- [ ] Fuzzy search (FZF) for `remove` and `delete` commands (because typing is hard).
-- [ ] Better CLI output
-- [ ] Better error messages
-- [ ] Add some tests, maybe... eventually.
+- [ ] Fuzzy search (FZF) for `remove` and `delete` commands.
+- [ ] Better CLI output.
+- [ ] Better error messages.
+- [ ] Add some tests (maybe?)
 
 ## License
 This project is licensed under the GPL-3.0. See [LICENSE](LICENSE.md) for the details (because legal stuff is important, apparently).
