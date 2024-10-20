@@ -1,69 +1,85 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/devadathanmb/gitbm/internal/db"
+	"github.com/devadathanmb/gitbm/internal/logger"
 	"github.com/devadathanmb/gitbm/internal/utils"
+	dbutils "github.com/devadathanmb/gitbm/internal/utils/dbUtils"
 	"github.com/spf13/cobra"
 )
 
-// Must handle two cases:
-// 1. gitbm init - Initializes gitbm for the current dir
-// 2. gitbm init <dir> - Initializes gitbm for the specified dir
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initialize gitbm for the git project",
+	Short: "Initialize gitbm for the current Git repository",
+	Long: `
+Initialize gitbm for the Git repository in the current directory.
+
+This command sets up the necessary database and configurations for gitbm to manage
+branch bookmarks in the current Git repository. It creates a .gitbm.db file in the
+.git directory of the repository.
+
+If gitbm is already initialized for the repository, this command will display an error.
+To reinitialize, use 'gitbm destroy' first, then run 'gitbm init' again.
+
+Note: 
+- This command must be run from within a Git repository.
+- It only affects the repository in the current working directory.
+
+Example:
+  cd /path/to/your/repo
+  gitbm init`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		initDir, err := os.Getwd()
 		if err != nil {
-			fmt.Println("Error getting current working directory:", err)
-			return
+			logger.PrintError("Error getting current directory:", err)
+			os.Exit(1)
 		}
 
 		isGitDir, err := utils.IsGitDir(initDir)
 		if err != nil {
-			fmt.Println("Error checking if directory is a git repository:", err)
-			return
+			logger.PrintError("Error checking if directory is a git repository:", err)
+			os.Exit(1)
 		}
 		if !isGitDir {
-			fmt.Println("The specified directory is not a git repository")
-			return
+			logger.PrintError("The specified directory is not a git repository")
+			os.Exit(1)
 		}
 
 		// DB file path
-		dbFilePath := utils.GetDBPath(initDir)
+		dbFilePath := dbutils.GetDBPath(initDir)
 
 		// Validate if db file already exists
 		doesDBExist, err := utils.DoesDBExist(dbFilePath)
 
 		if err != nil {
-			fmt.Println("Error checking if database file exists:", err)
-			return
+			logger.PrintError("Error checking if database file exists:", err)
+			os.Exit(1)
 		}
 
 		if doesDBExist {
-			fmt.Println("Gitbm seems to be already initialized for this directory. If you want to reinitialize, please run gitbm destroy and then gitbm init")
-			return
+			logger.PrintError("Gitbm is already initialized for this directory")
+			os.Exit(1)
 		}
 
 		// Create the database file
-		err = utils.CreateDB(dbFilePath)
+		err = dbutils.CreateDB(dbFilePath)
 
 		if err != nil {
-			fmt.Println("Error creating database file:", err)
-			return
+			logger.PrintError("Error creating database file:", err)
+			os.Exit(1)
 		}
 
 		// Initialize the database and run migrations
 		err = db.InitDB(dbFilePath)
 		if err != nil {
-			fmt.Println("Error initializing database:", err)
-			return
+			logger.PrintError("Error initializing database:", err)
+			os.Exit(1)
 		}
 
-		fmt.Println("Gitbm initialized successfully. Ready to use!")
+		logger.PrintSuccess("Gitbm initialized successfully. Ready to use! 🚀")
 
 	},
 }

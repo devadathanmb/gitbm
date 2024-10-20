@@ -10,10 +10,18 @@ type BookmarkGroup struct {
 	Name string
 }
 
+type BookmarkGroupRepository struct {
+	db *sql.DB
+}
+
+func NewBookmarkGroupRepository(db *sql.DB) *BookmarkGroupRepository {
+	return &BookmarkGroupRepository{db: db}
+}
+
 // Create a new bookmark group and set it as the current bookmark group
-func (bg *BookmarkGroup) Create(db *sql.DB) error {
+func (r *BookmarkGroupRepository) Create(bg *BookmarkGroup) error {
 	// Start a transaction
-	tx, err := db.Begin()
+	tx, err := r.db.Begin()
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
@@ -53,9 +61,9 @@ func (bg *BookmarkGroup) Create(db *sql.DB) error {
 }
 
 // List all bookmark groups
-func (bg *BookmarkGroup) List(db *sql.DB) ([]BookmarkGroup, error) {
+func (r *BookmarkGroupRepository) List() ([]BookmarkGroup, error) {
 	query := "SELECT id, name FROM bookmark_group"
-	rows, err := db.Query(query)
+	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("error querying bookmark groups: %w", err)
 	}
@@ -77,19 +85,39 @@ func (bg *BookmarkGroup) List(db *sql.DB) ([]BookmarkGroup, error) {
 }
 
 // Get current bookmark group
-func (bg *BookmarkGroup) GetCurrent(db *sql.DB) error {
+func (r *BookmarkGroupRepository) GetCurrent() (*BookmarkGroup, error) {
 	query := `
 		SELECT bg.id, bg.name 
 		FROM bookmark_group bg
 		JOIN current_bookmark_group cbg ON bg.id = cbg.bookmark_group_id
 		WHERE cbg.id = 1
 	`
-	err := db.QueryRow(query).Scan(&bg.ID, &bg.Name)
+	var bg BookmarkGroup
+	err := r.db.QueryRow(query).Scan(&bg.ID, &bg.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return fmt.Errorf("no current bookmark group set")
+			return nil, fmt.Errorf("no current bookmark group set")
 		}
-		return fmt.Errorf("error getting current bookmark group: %w", err)
+		return nil, fmt.Errorf("error getting current bookmark group: %w", err)
 	}
-	return nil
+	return &bg, nil
+}
+
+func (r *BookmarkGroupRepository) Delete(bookmarkGroupName string) error {
+	query := "DELETE FROM bookmark_group WHERE name = ?"
+	_, err := r.db.Exec(query, bookmarkGroupName)
+	return err
+}
+
+func (r *BookmarkGroupRepository) GetByName(name string) (*BookmarkGroup, error) {
+	query := "SELECT id, name FROM bookmark_group WHERE name = ?"
+	var bg BookmarkGroup
+	err := r.db.QueryRow(query, name).Scan(&bg.ID, &bg.Name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("bookmark group '%s' not found", name)
+		}
+		return nil, fmt.Errorf("error getting bookmark group: %w", err)
+	}
+	return &bg, nil
 }

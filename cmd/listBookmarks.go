@@ -6,73 +6,66 @@ import (
 
 	"github.com/devadathanmb/gitbm/internal/db"
 	"github.com/devadathanmb/gitbm/internal/db/models"
+	"github.com/devadathanmb/gitbm/internal/logger"
 	"github.com/devadathanmb/gitbm/internal/utils"
+	dbutils "github.com/devadathanmb/gitbm/internal/utils/dbUtils"
 	"github.com/spf13/cobra"
 )
 
-// listBookmarksCmd represents the listBookmarks command
 var listBookmarksCmd = &cobra.Command{
 	Use:   "bookmarks",
-	Short: "A brief description of your command",
-	Long:  ``,
+	Short: "List all bookmark groups",
+	Long: `
+List all bookmark groups in the current Git repository.
+
+This command displays all the bookmark groups that have been created
+in the current repository. If no bookmark groups exist, it will suggest
+using the 'gitbm add' command to create one.
+
+Usage:
+  gitbm list bookmarks
+
+Example:
+  gitbm list bookmarks
+
+Note: This command must be run from within a Git repository initialized with gitbm.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		currentDir, err := os.Getwd()
+
+		err := utils.ValidateBasic()
 		if err != nil {
-			fmt.Println("Error getting current working directory:", err)
-			return
-		}
-
-		isGitDir, err := utils.IsGitDir(currentDir)
-		if err != nil {
-			fmt.Println("Error checking if directory is a git repository:", err)
-			return
-		}
-		if !isGitDir {
-			fmt.Println("The specified directory is not a git repository")
-			return
-		}
-
-		// DB file path
-		dbFilePath := utils.GetDBPath(currentDir)
-
-		// Validate if db file already exists
-		doesDBExist, err := utils.DoesDBExist(dbFilePath)
-
-		if err != nil {
-			fmt.Println("Error checking if database file exists:", err)
-			return
-		}
-
-		if !doesDBExist {
-			fmt.Println("Gitbm does not seem to be initialized for this directory. Run 'gitbm init' to initialize the database")
-			return
+			logger.PrintError(fmt.Sprint(err))
+			os.Exit(1)
 		}
 
 		// Get db connection
+		currentDir, _ := os.Getwd()
+		dbFilePath := dbutils.GetDBPath(currentDir)
 		db, err := db.GetDB(dbFilePath)
 
 		if err != nil {
-			fmt.Println("Error getting db connection:", err)
-			return
+			logger.PrintError(fmt.Sprint(err))
+			os.Exit(1)
 		}
+
+		defer db.Close()
 
 		// Now we can list the bookmarks
-		bg := &models.BookmarkGroup{}
-		bookmarksList, err := bg.List(db)
+		bookmarkGroupRepo := models.NewBookmarkGroupRepository(db)
+		// bg := &models.BookmarkGroup{}
+		bookmarksList, err := bookmarkGroupRepo.List()
 
 		if err != nil {
-			fmt.Println("Error listing bookmark groups:", err)
-			return
+			logger.PrintError("Error getting bookmark groups: %v", err)
+			os.Exit(1)
 		}
 		if len(bookmarksList) == 0 {
-			fmt.Println("No bookmark groups found")
-			fmt.Println("Create a new bookmark group using 'gitbm create <group-name>'")
-			return
+			logger.PrintError("No bookmark groups found. Use `gitbm add` to add a bookmark group.")
+			os.Exit(1)
 		}
 
-		fmt.Println("Found the following bookmark groups:")
+		logger.PrintSuccess("Found bookmarks:")
 		for _, bookmark := range bookmarksList {
-			fmt.Println("- ", bookmark)
+			logger.Print(bookmark.Name)
 		}
 	},
 }

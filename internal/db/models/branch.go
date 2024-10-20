@@ -17,13 +17,21 @@ type Branch struct {
 	UpdatedAt       time.Time
 }
 
-func (b *Branch) Create(db *sql.DB) error {
+type BranchRepository struct {
+	db *sql.DB
+}
+
+func NewBranchRepository(db *sql.DB) *BranchRepository {
+	return &BranchRepository{db: db}
+}
+
+func (r *BranchRepository) Create(b *Branch) error {
 	query := `
         INSERT INTO branches (bookmark_group_id, name, branch_alias, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?)
     `
 	now := time.Now()
-	result, err := db.Exec(query, b.BookmarkGroupID, b.Name, b.Alias, now, now)
+	result, err := r.db.Exec(query, b.BookmarkGroupID, b.Name, b.Alias, now, now)
 	if err != nil {
 		if sqliteErr, ok := err.(sqlite3.Error); ok {
 			if sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
@@ -41,14 +49,13 @@ func (b *Branch) Create(db *sql.DB) error {
 	return nil
 }
 
-func (b *Branch) ListByBookmarkGroupId(db *sql.DB) ([]Branch, error) {
+func (r *BranchRepository) ListByBookmarkGroupId(bookmarkGroupID int64) ([]Branch, error) {
 	query := "SELECT id, name, branch_alias, created_at, updated_at FROM branches WHERE bookmark_group_id = ?"
-	rows, err := db.Query(query, b.BookmarkGroupID)
+	rows, err := r.db.Query(query, bookmarkGroupID)
 	if err != nil {
 		return nil, fmt.Errorf("error querying branches: %w", err)
 	}
 	defer rows.Close()
-
 	var branches []Branch
 	for rows.Next() {
 		var branch Branch
@@ -56,7 +63,7 @@ func (b *Branch) ListByBookmarkGroupId(db *sql.DB) ([]Branch, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %w", err)
 		}
-		branch.BookmarkGroupID = b.BookmarkGroupID
+		branch.BookmarkGroupID = bookmarkGroupID
 		branches = append(branches, branch)
 	}
 	if err = rows.Err(); err != nil {
@@ -65,14 +72,24 @@ func (b *Branch) ListByBookmarkGroupId(db *sql.DB) ([]Branch, error) {
 	return branches, nil
 }
 
-func (b *Branch) GetByName(db *sql.DB) error {
+func (r *BranchRepository) GetByName(bookmarkGroupID int64, name string) (*Branch, error) {
 	query := "SELECT id, branch_alias, created_at, updated_at FROM branches WHERE bookmark_group_id = ? AND name = ?"
-	err := db.QueryRow(query, b.BookmarkGroupID, b.Name).Scan(&b.ID, &b.Alias, &b.CreatedAt, &b.UpdatedAt)
+	b := &Branch{BookmarkGroupID: bookmarkGroupID, Name: name}
+	err := r.db.QueryRow(query, bookmarkGroupID, name).Scan(&b.ID, &b.Alias, &b.CreatedAt, &b.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return fmt.Errorf("branch '%s' not found in this bookmark group", b.Name)
+			return nil, fmt.Errorf("branch '%s' not found in this bookmark group", name)
 		}
-		return fmt.Errorf("error getting branch: %w", err)
+		return nil, fmt.Errorf("error getting branch: %w", err)
+	}
+	return b, nil
+}
+
+func (r *BranchRepository) Remove(bookmarkGroupID int64, name string) error {
+	query := "DELETE FROM branches WHERE bookmark_group_id = ? AND name = ?"
+	_, err := r.db.Exec(query, bookmarkGroupID, name)
+	if err != nil {
+		return fmt.Errorf("error removing branch: %w", err)
 	}
 	return nil
 }

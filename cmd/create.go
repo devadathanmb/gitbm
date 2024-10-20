@@ -5,97 +5,90 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/devadathanmb/gitbm/internal/db"
 	"github.com/devadathanmb/gitbm/internal/db/models"
+	"github.com/devadathanmb/gitbm/internal/logger"
 	"github.com/devadathanmb/gitbm/internal/utils"
+	dbutils "github.com/devadathanmb/gitbm/internal/utils/dbUtils"
 	"github.com/mattn/go-sqlite3"
 	"github.com/spf13/cobra"
 )
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a bookmark group",
-	Long:  `Creates a new branch bookmark group for the git project`,
-	Run: func(cmd *cobra.Command, args []string) {
-		// What should this command do?
-		// 1. Check if the current directory is a git directory
-		// 2. Check if the database file exists
-		// 3. Create a new bookmark group
+	Use:   "create [name]",
+	Short: "Create a new bookmark group",
+	Long: `
+Create a new bookmark group for the current Git project.
 
-		// Check if the current directory is a git directory
+This command allows you to create a named collection of branch bookmarks. 
+If no name is provided, it will use a random name.
+
+Examples:
+  gitbm create
+  gitbm create migrate-to-kafka
+  gitbm create "Feature: Add user profile"
+
+The newly created bookmark group becomes the active group.`,
+	Run: func(cmd *cobra.Command, args []string) {
 		var bookmarkGroupName string
-		var gitDir string
-		var err error
+
+		err := utils.ValidateBasic()
+		if err != nil {
+			logger.PrintError(fmt.Sprint(err))
+			os.Exit(1)
+		}
 
 		if len(args) == 0 {
-			fmt.Println("No bookmark group name specified. Using a random name.")
+			logger.PrintWarning("No bookmark group name specified. Using a random name.")
 
 			bookmarkGroupName = utils.GetRandomName()
 		} else {
 			bookmarkGroupName = args[0]
 		}
 
-		isGitDir, err := utils.IsGitDir(gitDir)
-		if err != nil {
-			fmt.Println("Error checking if directory is a git repository:", err)
-			return
-		}
-		if !isGitDir {
-			fmt.Println("The specified directory is not a git repository")
-			return
-		}
+		currentDir, _ := os.Getwd()
+		dbFilePath := dbutils.GetDBPath(currentDir)
 
-		// DB file path
-		dbFilePath := utils.GetDBPath(gitDir)
-
-		// Validate if db file already exists
-		doesDBExist, err := utils.DoesDBExist(dbFilePath)
-
-		if err != nil {
-			fmt.Println("Error checking if database file exists:", err)
-			return
-		}
-
-		if !doesDBExist {
-			fmt.Println("Database does not exist. Run 'gitbm init' to initialize the database")
-			return
-		}
-
-		// Get DB connection
 		db, err := db.GetDB(dbFilePath)
 
 		if err != nil {
-			fmt.Println("Error getting database connection:", err)
-			return
+			logger.PrintError(fmt.Sprint(err))
+			os.Exit(1)
 		}
 
+		defer db.Close()
+
+		bookmarkGroupRepo := models.NewBookmarkGroupRepository(db)
 		// Create a new bookmark group
 		bg := models.BookmarkGroup{
 			Name: bookmarkGroupName,
 		}
 
-		err = bg.Create(db)
+		err = bookmarkGroupRepo.Create(&bg)
 		if err != nil {
 			if sqliteErr, ok := err.(sqlite3.Error); ok {
 				if sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
-					fmt.Printf("Error: Bookmark group '%s' already exists.\n", bookmarkGroupName)
+					logger.PrintError("Bookmark group with the same name already exists")
+					os.Exit(1)
 				} else {
-					fmt.Printf("SQLite error occurred: %v\n", sqliteErr)
+					logger.PrintError("Error creating bookmark group: %v", err)
+					os.Exit(1)
 				}
 			} else {
-				fmt.Printf("Error creating bookmark group: %v\n", err)
+				logger.PrintError("Error creating bookmark group: %v", err)
+				os.Exit(1)
 			}
-			return
 		}
 
 		if err != nil {
-			fmt.Println("Error creating stuff", err)
-			return
+			logger.PrintError(fmt.Sprint(err))
+			os.Exit(1)
 		}
 
-		fmt.Println("Bookmark group created successfully. Name:", bookmarkGroupName)
+		logger.PrintSuccess("Bookmark group created: %s", bookmarkGroupName)
 	},
 }
 

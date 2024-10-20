@@ -3,6 +3,8 @@ package utils
 import (
 	"os"
 	"path/filepath"
+
+	dbutils "github.com/devadathanmb/gitbm/internal/utils/dbUtils"
 )
 
 func fileExists(path string) (bool, error) {
@@ -65,7 +67,7 @@ func ValidateBasic() (err error) {
 	}
 
 	// DB file path
-	dbFilePath := GetDBPath(currentDir)
+	dbFilePath := dbutils.GetDBPath(currentDir)
 
 	// Validate if db file already exists
 	doesDBExist, err := DoesDBExist(dbFilePath)
