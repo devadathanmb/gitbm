@@ -1,5 +1,5 @@
 # gitbm
-A fast *(probably)*, lightweight *(I guess so)* Git branch bookmarking tool written in Go, powered by SQLite.
+A fast *(probably)*, lightweight *(I guess so)* Git branch bookmarking tool written in Go, powered by SQLite and FZF.
 
 ![image](https://github.com/user-attachments/assets/294dcc4b-b6bc-42a7-904f-a041a0c17d31)
 
