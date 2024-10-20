@@ -49,7 +49,7 @@ gitbm --help
 ## TODO
 - [ ] Add `recent` command with automatic branch tracking.
 - [ ] Shell completion (because typing is hard).
-- [ ] Fuzzy search (FZF) for `remove` and `delete` commands.
+- [x] Fuzzy search (FZF) for `remove` and `delete` commands.
 - [ ] Better CLI output.
 - [ ] Better error messages.
 - [ ] Add some tests (maybe?)
