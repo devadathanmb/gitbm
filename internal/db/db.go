@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -9,6 +10,13 @@ import (
 // Function to get the database connection
 func GetDB(path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		return nil, err
+	}
+
+	// Always enable foreign key constraints before returning the database connection
+	// as sqlite does not enforce foreign key constraints by default
+	_, err = db.Exec("PRAGMA foreign_keys = ON;")
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +32,14 @@ func InitDB(path string) error {
 		return err
 	}
 
-	defer db.Close()
+	// After initing the database
+	// close the connection and if there is an error remove the database file
+	defer func() {
+		db.Close()
+		if err != nil {
+			_ = os.Remove(path)
+		}
+	}()
 
 	// Enable foreign key constraints
 	_, err = db.Exec("PRAGMA foreign_keys = ON;")
@@ -68,9 +83,9 @@ func InitDB(path string) error {
 	// Create current bookmark group table
 	_, err = db.Exec(`
     CREATE TABLE IF NOT EXISTS current_bookmark_group (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
+        id INTEGER PRIMARY KEY,
         bookmark_group_id INTEGER NOT NULL,
-        FOREIGN KEY (bookmark_group_id) REFERENCES bookmark_group(bookmark_group_id) ON DELETE SET NULL
+        FOREIGN KEY (bookmark_group_id) REFERENCES bookmark_group(id) ON DELETE SET NULL
     );
 	`)
 	if err != nil {
