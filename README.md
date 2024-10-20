@@ -1,13 +1,14 @@
 # gitbm
-A fast (probably), lightweight (I guess so) Git branch bookmarking tool written in Go, powered by SQLite.
+A fast *(probably)*, lightweight *(I guess so)* Git branch bookmarking tool written in Go, powered by SQLite.
+
 ![image](https://github.com/user-attachments/assets/294dcc4b-b6bc-42a7-904f-a041a0c17d31)
 
-
 ## Why `gitbm`?
+When you’re working on a big feature or in a team environment, managing multiple branches can become quite a challenge. Here’s why gitbm helps (or at least tries to help):
 - You’re working on a huge feature split into multiple smaller tasks. Each task has its own branch, and you can’t remember all those branch names.
 - If you have the memory of an elephant, this tool is not for you. But if you’re like me, who forgets branch names after a day or two, then **this tool is definitely for you**.
-- Your team uses weird branch naming conventions like `JIRA-xyz123` or `CLICKUP-456`, and remembering these names is like remembering your long-lost Wi-Fi password.
-- You just want to bookmark branches with a cool alias like `super-cool-feature` and not worry about remembering the cryptic original names.
+- Your team uses weird branch naming conventions like `JIRA-xyz123` or `CLICKUP-456`, and remembering these names is like remembering the 100th digit of Pi. 
+- You just want to bookmark branches with meaningful alias like `boss-needs-it-tomorrow` and not worry about remembering the cryptic original names.
 
 ## How It Works
 - Everything happens **locally** in your Git repository. Your git configs are safe and untouched.
