@@ -19,7 +19,7 @@ When you’re working on a big feature or in a team environment, managing multip
 1. Make sure you’ve got Go installed (if not, [download it here](https://golang.org/dl/)).
 2. Run the following command to install `gitbm`:
     ```bash
-    go get -u github.com/devadathanmb/gitbm
+    go install github.com/devadathanmb/gitbm@latest
     ```
 
 ## Usage
