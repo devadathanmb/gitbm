@@ -4,17 +4,15 @@ A fast (probably), lightweight (I guess so) Git branch bookmarking tool written 
 
 https://github.com/user-attachments/assets/78a32e1d-2cc3-48c3-abf9-2cfa65474054
 
-
-
 ## Why `gitbm`?
-- You’re working on a huge feature split into multiple smaller tasks. Each task has its own branch, and you can’t remember all those branch names (Chained branches are the worst, I know)
+- You’re working on a huge feature split into multiple smaller tasks. Each task has its own branch, and you can’t remember all those branch names.
 - If you have the memory of an elephant, this tool is not for you. But if you’re like me, who forgets branch names after a day or two, then **this tool is definitely for you**.
 - Your team uses weird branch naming conventions like `JIRA-xyz123` or `CLICKUP-456`, and remembering these names is like remembering your long-lost Wi-Fi password.
 - You just want to bookmark branches with a cool alias like `super-cool-feature` and not worry about remembering the cryptic original names.
 
 ## How It Works
 - Everything happens **locally** in your Git repository. Your git configs are safe and untouched.
-- A **SQLite database** (fancy, right?) is created in the `.git` directory of your repo to store branch names and aliases.
+- A **SQLite database** (fancy but necessary!) is created in the `.git` directory of your repo to store branch names and aliases.
 - Every time you run a `gitbm` command, the tool reads from this magical database, does its thing, and updates the database as needed.
 
 ## Installation
@@ -48,8 +46,11 @@ gitbm --help
 
 ## TODO
 - [ ] Add `recent` command with automatic branch tracking (because let’s face it, we all need this).
+- [ ] Shell completion (because typing is hard).
 - [ ] Fuzzy search (FZF) for `remove` and `delete` commands (because typing is hard).
+- [ ] Better CLI output
+- [ ] Better error messages
 - [ ] Add some tests, maybe... eventually.
 
 ## License
-This project is licensed under the GPL-3.0. See [LICENSE](LICENSE) for the details (because legal stuff is important, apparently).
+This project is licensed under the GPL-3.0. See [LICENSE](LICENSE.md) for the details (because legal stuff is important, apparently).
