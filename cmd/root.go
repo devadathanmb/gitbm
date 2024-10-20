@@ -28,8 +28,3 @@ func Execute() {
 		os.Exit(1)
 	}
 }
-
-func init() {
-	// This is just an example flag. You can define any root-level flags here.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
