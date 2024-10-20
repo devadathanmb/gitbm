@@ -65,6 +65,7 @@ Examples:
 			return
 		}
 
+		logger.PrintWarning("Now I'm become death, the destroyer of worlds. ☠️")
 		logger.PrintSuccess("gitbm data has been successfully destroyed.")
 	},
 }
