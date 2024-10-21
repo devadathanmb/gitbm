@@ -88,6 +88,18 @@ func InitDB(path string) error {
         FOREIGN KEY (bookmark_group_id) REFERENCES bookmark_group(id) ON DELETE SET NULL
     );
 	`)
+
+	// Creating a separate branch table to keep track of checkout stuff
+	// Maybe in the future, we can merge this with the branches table
+	_, err = db.Exec(`
+	CREATE TABLE IF NOT EXISTS branch_checkouts (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL UNIQUE,
+		checkout_count INTEGER DEFAULT 1,
+		last_checked_out_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		latest_commit_msg TEXT NOT NULL
+	);
+	`)
 	if err != nil {
 		return err
 	}

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# $1 is the previous HEAD
+# $2 is the new HEAD
+# $3 is a flag indicating whether it's a branch checkout
+
+# Check if gitbm is available
+if ! command -v gitbm >/dev/null 2>&1; then
+    printf "${YELLOW}Gitbm is not installed or not in PATH. Skipping branch tracking.${NC}\n"
+    printf "${YELLOW}To remove this message, remove the post-checkout hook in .git directory.${NC}\n"
+    exit 0
+fi
+
+# Get the name of the branch that was just checked out to
+new_branch=$(git symbolic-ref --short HEAD)
+
+# Only proceed if we've switched to a new branch (not just updated files)
+if [ "$3" = "1" ]; then
+    # Get the latest commit message
+    commit_message=$(git log -1 --pretty=%B)
+    
+    # Escape any single quotes in the commit message
+    escaped_message=$(echo "$commit_message" | sed "s/'/'\\\\''/g")
+    
+    # Let gitbm track the checkout
+    if gitbm track-checkout "$new_branch" "$escaped_message"; then
+        printf "${GREEN}Gitbm is tracking, all good!${NC}\n"
+    else
+        printf "${RED}Gitbm tracking failed. Please check your gitbm installation.${NC}\n"
+    fi
+fi
+
+exit 0

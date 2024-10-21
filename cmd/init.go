@@ -7,6 +7,7 @@ import (
 	"github.com/devadathanmb/gitbm/internal/logger"
 	"github.com/devadathanmb/gitbm/internal/utils"
 	dbutils "github.com/devadathanmb/gitbm/internal/utils/dbUtils"
+	gitutils "github.com/devadathanmb/gitbm/internal/utils/gitUtils"
 	"github.com/spf13/cobra"
 )
 
@@ -78,6 +79,17 @@ Example:
 			logger.PrintError("Error initializing database:", err)
 			os.Exit(1)
 		}
+
+		logger.PrintInfo("Initialized gitbm database")
+
+		err = gitutils.InstallGitHook(initDir)
+
+		if err != nil {
+			logger.PrintError("Error installing gitbm hook:", err)
+			os.Exit(1)
+		}
+
+		logger.PrintInfo("Installed gitbm hook")
 
 		logger.PrintSuccess("Gitbm initialized successfully. Ready to use! 🚀")
 

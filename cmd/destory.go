@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/devadathanmb/gitbm/internal/logger"
 	"github.com/devadathanmb/gitbm/internal/utils"
 	dbutils "github.com/devadathanmb/gitbm/internal/utils/dbUtils"
+	gitutils "github.com/devadathanmb/gitbm/internal/utils/gitUtils"
 	"github.com/spf13/cobra"
 )
 
@@ -64,6 +66,23 @@ Examples:
 			fmt.Println("Error removing gitbm database:", err)
 			return
 		}
+
+		logger.PrintInfo("Removed gitbm database")
+
+		// Remove the gitbm hook
+		hooksDir, err := gitutils.GetGitHooksDir()
+		if err != nil {
+			fmt.Println("Error getting git hooks directory:", err)
+			os.Exit(1)
+		}
+		err = os.Remove(filepath.Join(hooksDir, "post-checkout"))
+
+		if err != nil {
+			fmt.Println("Error removing gitbm hook:", err)
+			return
+		}
+
+		logger.PrintInfo("Removed gitbm hooks")
 
 		logger.PrintWarning("Now I'm become death, the destroyer of worlds. ☠️")
 		logger.PrintSuccess("gitbm data has been successfully destroyed.")
