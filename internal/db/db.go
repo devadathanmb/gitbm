@@ -26,7 +26,15 @@ func GetDB(path string) (*sql.DB, error) {
 
 // Function to initialize the database
 func InitDB(path string) error {
+	var err error
 	db, err := GetDB(path)
+
+	if err != nil {
+		return err
+	}
+
+	// Start a transaction
+	tx, err := db.Begin()
 
 	if err != nil {
 		return err
@@ -42,13 +50,13 @@ func InitDB(path string) error {
 	}()
 
 	// Enable foreign key constraints
-	_, err = db.Exec("PRAGMA foreign_keys = ON;")
+	_, err = tx.Exec("PRAGMA foreign_keys = ON;")
 	if err != nil {
 		return err
 	}
 
 	// Create bookmark_group table
-	_, err = db.Exec(`
+	_, err = tx.Exec(`
 		CREATE TABLE IF NOT EXISTS bookmark_group (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT NOT NULL UNIQUE,
@@ -62,7 +70,7 @@ func InitDB(path string) error {
 	}
 
 	// Create branches table
-	_, err = db.Exec(`
+	_, err = tx.Exec(`
 		CREATE TABLE IF NOT EXISTS branches (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			bookmark_group_id INTEGER,
@@ -81,7 +89,7 @@ func InitDB(path string) error {
 	}
 
 	// Create current bookmark group table
-	_, err = db.Exec(`
+	_, err = tx.Exec(`
     CREATE TABLE IF NOT EXISTS current_bookmark_group (
         id INTEGER PRIMARY KEY,
         bookmark_group_id INTEGER NOT NULL,
@@ -91,7 +99,7 @@ func InitDB(path string) error {
 
 	// Creating a separate branch table to keep track of checkout stuff
 	// Maybe in the future, we can merge this with the branches table
-	_, err = db.Exec(`
+	_, err = tx.Exec(`
 	CREATE TABLE IF NOT EXISTS branch_checkouts (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL UNIQUE,
@@ -100,6 +108,11 @@ func InitDB(path string) error {
 		latest_commit_msg TEXT NOT NULL
 	);
 	`)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
 	if err != nil {
 		return err
 	}
