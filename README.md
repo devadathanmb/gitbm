@@ -71,12 +71,13 @@ And many more! Check out the help command for more details.
 - [x] Shell completion (because typing is hard).
 - [x] Fuzzy search (FZF) for `remove` and `delete` commands.
 - [x] Add `recent` command with automatic branch tracking with git hooks.
-- [ ] Track branch deletions.
+- [x] Add reset command to `recent` and `frequent` commands. 
+- [ ] Add FZF support to add command.
+- [ ] Track branch deletions automatically.
 - [ ] Track new branches automatically.
-- [ ] Add reset command to `recent` and `frequent` commands. 
 - [ ] Better CLI output.
 - [ ] Better error messages.
 - [ ] Add some tests (maybe?)
 
 ## License
-This project is licensed under the GPL-3.0. See [LICENSE](LICENSE.md) for the details (because legal stuff is important, apparently).
+This project is licensed under the GPL-3.0. See [LICENSE](LICENSE.md) for the details.
