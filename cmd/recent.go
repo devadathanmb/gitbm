@@ -15,27 +15,30 @@ import (
 )
 
 var recentCmd = &cobra.Command{
-	Use:   "recent",
+	Use:   "recent [frequent]",
 	Short: "List and checkout recently used branches",
 	Long: `The 'recent' command lists the most recently checked out branches in your repository.
-
 It provides an interactive fuzzy-finder interface to select and checkout a branch from the list.
-
 By default, it shows the 10 most recently used branches. You can modify this behavior
 using the available flags.
 
-This command is useful for quickly switching between branches you've been working on lately.`,
+When used with the 'frequent' argument, it shows branches ordered by frequency of checkouts
+rather than recency, helping you access your most commonly used branches.
+
+This command is useful for quickly switching between branches you've been working on lately
+or frequently use.`,
 	Example: `  # List and select from the 10 most recently used branches
   gitbm recent
-
+  # List and select from the 10 most frequently used branches
+  gitbm recent frequent
   # List and select from the 5 most recently used branches
   gitbm recent --limit 5
-
+  # List and select from the 5 most frequently used branches
+  gitbm recent frequent --limit 5
   # List and select from the 10 least recently used branches
   gitbm recent --reverse
-
-  # List and select from the 5 least recently used branches
-  gitbm recent --limit 5 --reverse`,
+  # List and select from the 10 least frequently used branches
+  gitbm recent frequent --reverse`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Validate basic
 		err := utils.ValidateBasic()
@@ -78,7 +81,12 @@ This command is useful for quickly switching between branches you've been workin
 		// Get the branch names and fzf them
 
 		branchCheckoutRepo := models.NewBranchCheckoutRepository(db)
-		branches, err := branchCheckoutRepo.GetRecent(limit, isReverse)
+		var branches []models.BranchCheckout
+		if len(args) > 0 && args[0] == "frequent" {
+			branches, err = branchCheckoutRepo.GetRecentFrequent(limit, isReverse)
+		} else {
+			branches, err = branchCheckoutRepo.GetRecent(limit, isReverse)
+		}
 		if err != nil {
 			logger.PrintError(fmt.Sprint(err))
 			os.Exit(1)

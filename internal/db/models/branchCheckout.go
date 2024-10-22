@@ -96,6 +96,36 @@ func (r *BranchCheckoutRepository) GetFrequent(limit int, isReverse bool) ([]Bra
 	return branches, nil
 }
 
+func (r *BranchCheckoutRepository) GetRecentFrequent(limit int, isReverse bool) ([]BranchCheckout, error) {
+	// Get the most frequently checked out branches
+	query := `SELECT * FROM branch_checkouts ORDER BY last_checked_out_at DESC, checkout_count DESC LIMIT ?`
+	if isReverse {
+		query = `SELECT * FROM branch_checkouts ORDER BY last_checked_out_at ASC, checkout_count ASC LIMIT ?`
+	}
+
+	rows, err := r.db.Query(query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var branches []BranchCheckout
+	for rows.Next() {
+		var b BranchCheckout
+		err := rows.Scan(&b.ID, &b.Name, &b.CheckoutCount, &b.LastCheckedOutAt, &b.LatestCommitMsg)
+		if err != nil {
+			return nil, err
+		}
+		branches = append(branches, b)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return branches, nil
+}
+
 func (r *BranchCheckoutRepository) DeleteAll() error {
 	query := `DELETE FROM branch_checkouts`
 	_, err := r.db.Exec(query)
