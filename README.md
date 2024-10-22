@@ -44,6 +44,11 @@ gitbm --help
     gitbm recent
     ```
 
+- Fuzzy checkout to one of your recent frequently checked out branches:
+    ```bash
+    gitbm recent frequent
+    ```
+
 - Fuzzy checkout to one of your top 10 most frequently checked out branches:
     ```bash
     gitbm frequent
