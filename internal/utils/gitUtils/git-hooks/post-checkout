@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -8,7 +7,7 @@ NC='\033[0m' # No Color
 
 # $1 is the previous HEAD
 # $2 is the new HEAD
-# $3 is a flag indicating whether it's a branch checkout
+# $3 is a flag indicating whether it's a branch checkout (1) or a file checkout (0)
 
 # Check if gitbm is available
 if ! command -v gitbm >/dev/null 2>&1; then
@@ -17,13 +16,16 @@ if ! command -v gitbm >/dev/null 2>&1; then
     exit 0
 fi
 
-# Get the name of the branch that was just checked out to
+# Get the name of the branch that was just checked out
+# This will be empty if checking out a commit hash
 new_branch=$(git symbolic-ref --short HEAD)
 
-# Only proceed if we've switched to a new branch (not just updated files)
-if [ "$3" = "1" ]; then
-    # Get the latest commit message
-    commit_message=$(git log -1 --pretty=%B)
+# Only proceed if:
+# 1. We've switched to a new branch ($3 = 1)
+# 2. new_branch is not empty (meaning we're on a branch, not a commit hash)
+if [ "$3" = "1" ] && [ -n "$new_branch" ]; then
+    # Get only the commit message (first line), not the full description
+    commit_message=$(git log -1 --pretty=%s)
     
     # Escape any single quotes in the commit message
     escaped_message=$(echo "$commit_message" | sed "s/'/'\\\\''/g")
@@ -35,5 +37,4 @@ if [ "$3" = "1" ]; then
         printf "${RED}Gitbm tracking failed. Please check your gitbm installation.${NC}\n"
     fi
 fi
-
 exit 0
