@@ -71,6 +71,7 @@ And many more! Check out the help command for more details.
 - [x] Shell completion (because typing is hard).
 - [x] Fuzzy search (FZF) for `remove` and `delete` commands.
 - [x] Add `recent` command with automatic branch tracking with git hooks.
+- [ ] Track branch deletions.
 - [ ] Track new branches automatically.
 - [ ] Add reset command to `recent` and `frequent` commands. 
 - [ ] Better CLI output.

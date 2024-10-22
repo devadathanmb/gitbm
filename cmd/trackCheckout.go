@@ -45,6 +45,8 @@ var trackCheckoutCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		defer db.Close()
+
 		// Get the branch name
 		branchCheckoutRepo := models.NewBranchCheckoutRepository(db)
 		branchCheckout := &models.BranchCheckout{

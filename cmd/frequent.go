@@ -57,6 +57,8 @@ Examples:
 			os.Exit(1)
 		}
 
+		defer db.Close()
+
 		var limit int
 		var isReverse bool
 

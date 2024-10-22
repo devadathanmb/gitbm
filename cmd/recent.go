@@ -54,6 +54,8 @@ This command is useful for quickly switching between branches you've been workin
 			os.Exit(1)
 		}
 
+		defer db.Close()
+
 		var limit int
 		var isReverse bool
 

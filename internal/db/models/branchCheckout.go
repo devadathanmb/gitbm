@@ -95,3 +95,9 @@ func (r *BranchCheckoutRepository) GetFrequent(limit int, isReverse bool) ([]Bra
 
 	return branches, nil
 }
+
+func (r *BranchCheckoutRepository) DeleteAll() error {
+	query := `DELETE FROM branch_checkouts`
+	_, err := r.db.Exec(query)
+	return err
+}
