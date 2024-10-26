@@ -31,6 +31,16 @@ Examples:
 			fmt.Println("Please specify what to list: 'bookmarks' or 'branches'")
 			return
 		}
+		var allowedArgs = map[string]struct{}{
+			"bookmarks": {},
+			"branches":  {},
+		}
+
+		if _, ok := allowedArgs[args[0]]; !ok {
+			fmt.Println("Invalid argument. Please specify 'bookmarks' or 'branches'")
+			return
+		}
+
 	},
 }
 
